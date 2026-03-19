@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
-// ✅ ક્લાસનું નામ 'LoginPage' રાખ્યું છે જેથી main.dart માં એરર ન આવે
 class LoginPage extends StatefulWidget {
-  final VoidCallback? onSwitchToSignup; // નામ બદલ્યું (Optional)
-  const LoginPage({this.onSwitchToSignup, super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -14,12 +11,10 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   bool _isLoading = false;
 
-  final Color brandBlue = const Color(0xFF7C3AED);
+  final Color brandPurple = const Color(0xFF7C3AED);
 
-  // લોગિન માટેનું ફંક્શન
   Future<void> login() async {
     if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
       _showMessage("Please fill in all fields");
@@ -32,7 +27,6 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // સફળ થાય તો હોમ પેજ પર આપોઆપ જશે (StreamBuilder દ્વારા)
     } catch (e) {
       _showMessage("Login Failed: ${e.toString()}");
     } finally {
@@ -41,7 +35,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showMessage(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
   }
 
   @override
@@ -86,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : login,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: brandBlue,
+                        backgroundColor: brandPurple,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: _isLoading
