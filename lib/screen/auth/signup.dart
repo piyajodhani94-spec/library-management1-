@@ -18,8 +18,8 @@ class _SignupPageState extends State<SignupPage> {
   bool _isLoading = false;
   bool agreeToTerms = false;
   
-  // Brand Color from Login Page
-  final Color brandBlue = const Color(0xFF3F66F3);
+  // 💜 Purple Brand Color (Matches your Login Page)
+  final Color brandColor = const Color(0xFF7C3AED);
 
   // ================= SIGNUP LOGIC =================
   Future<void> signup() async {
@@ -48,6 +48,8 @@ class _SignupPageState extends State<SignupPage> {
       if (mounted) Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       _showMessage(e.message ?? "Signup Failed");
+    } catch (e) {
+      _showMessage("An unexpected error occurred");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -59,7 +61,10 @@ class _SignupPageState extends State<SignupPage> {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
       final GoogleSignInAccount? user = await googleSignIn.signIn();
-      if (user == null) return;
+      if (user == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
 
       final GoogleSignInAuthentication auth = await user.authentication;
       final credential = GoogleAuthProvider.credential(
@@ -83,7 +88,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA), // Matches Login Background
+      backgroundColor: const Color(0xFFF3E8FF), // 💜 Light purple background
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -94,7 +99,7 @@ class _SignupPageState extends State<SignupPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: brandBlue),
+                    icon: Icon(Icons.arrow_back, color: brandColor),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
@@ -106,11 +111,11 @@ class _SignupPageState extends State<SignupPage> {
                   constraints: const BoxConstraints(maxWidth: 500),
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFFAF5FF), // 💜 Card color
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(0.03),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       )
@@ -119,12 +124,12 @@ class _SignupPageState extends State<SignupPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Create Account",
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1A1A1A),
+                          color: Color(0xFF1A1A1A),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -134,7 +139,6 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       const SizedBox(height: 32),
 
-                      // Fields
                       _buildLabel("FULL NAME"),
                       _buildTextField(nameController, "John Doe", false),
                       
@@ -155,7 +159,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       const SizedBox(height: 20),
 
-                      // Terms
+                      // Terms Checkbox
                       Row(
                         children: [
                           SizedBox(
@@ -163,7 +167,7 @@ class _SignupPageState extends State<SignupPage> {
                             width: 24,
                             child: Checkbox(
                               value: agreeToTerms,
-                              activeColor: brandBlue,
+                              activeColor: brandColor,
                               onChanged: (v) => setState(() => agreeToTerms = v ?? false),
                             ),
                           ),
@@ -186,7 +190,7 @@ class _SignupPageState extends State<SignupPage> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : signup,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: brandBlue,
+                            backgroundColor: brandColor,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             elevation: 0,
                           ),
@@ -220,7 +224,7 @@ class _SignupPageState extends State<SignupPage> {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: googleSignup,
-                          icon: Icon(Icons.g_mobiledata, size: 30, color: brandBlue),
+                          icon: Icon(Icons.g_mobiledata, size: 30, color: brandColor),
                           label: const Text(
                             "Continue with Google",
                             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
@@ -238,7 +242,7 @@ class _SignupPageState extends State<SignupPage> {
 
                 const SizedBox(height: 32),
 
-                // Footer
+                // Footer (Navigate to Login)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -247,7 +251,7 @@ class _SignupPageState extends State<SignupPage> {
                       onTap: () => Navigator.pop(context),
                       child: Text(
                         "Log In",
-                        style: TextStyle(color: brandBlue, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: brandColor, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -279,7 +283,7 @@ class _SignupPageState extends State<SignupPage> {
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade400),
         filled: true,
-        fillColor: const Color(0xFFE9ECEF),
+        fillColor: const Color(0xFFEDE9FE), // 💜 Light purple input field
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),

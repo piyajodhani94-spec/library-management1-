@@ -20,6 +20,9 @@ class _EditBookPageState extends State<EditBookPage> {
   late TextEditingController descriptionController;
   bool isLoading = false;
 
+  // 💜 Purple Brand Color
+  final Color brandColor = const Color(0xFF7C3AED);
+
   @override
   void initState() {
     super.initState();
@@ -27,15 +30,12 @@ class _EditBookPageState extends State<EditBookPage> {
     authorController = TextEditingController(text: widget.book.author);
     isbnController = TextEditingController(text: widget.book.isbn ?? '');
     genreController = TextEditingController(text: widget.book.genre ?? '');
-    publicationDateController =
-        TextEditingController(text: widget.book.publicationDate ?? '');
-    descriptionController =
-        TextEditingController(text: widget.book.description ?? '');
+    publicationDateController = TextEditingController(text: widget.book.publicationDate ?? '');
+    descriptionController = TextEditingController(text: widget.book.description ?? '');
   }
 
   Future<void> editBook() async {
-    if (titleController.text.trim().isEmpty ||
-        authorController.text.trim().isEmpty) {
+    if (titleController.text.trim().isEmpty || authorController.text.trim().isEmpty) {
       showMessage("Please fill in title and author");
       return;
     }
@@ -49,18 +49,10 @@ class _EditBookPageState extends State<EditBookPage> {
           .update({
         'title': titleController.text.trim(),
         'author': authorController.text.trim(),
-        'isbn': isbnController.text.trim().isEmpty
-            ? null
-            : isbnController.text.trim(),
-        'genre': genreController.text.trim().isEmpty
-            ? null
-            : genreController.text.trim(),
-        'publicationDate': publicationDateController.text.trim().isEmpty
-            ? null
-            : publicationDateController.text.trim(),
-        'description': descriptionController.text.trim().isEmpty
-            ? null
-            : descriptionController.text.trim(),
+        'isbn': isbnController.text.trim().isEmpty ? null : isbnController.text.trim(),
+        'genre': genreController.text.trim().isEmpty ? null : genreController.text.trim(),
+        'publicationDate': publicationDateController.text.trim().isEmpty ? null : publicationDateController.text.trim(),
+        'description': descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim(),
       });
 
       if (mounted) {
@@ -80,16 +72,17 @@ class _EditBookPageState extends State<EditBookPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text("Delete Book?"),
-        content: const Text("Are you sure you want to delete this book?"),
+        content: const Text("Are you sure you want to remove this book from your library?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: const Text("Delete", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -98,16 +91,10 @@ class _EditBookPageState extends State<EditBookPage> {
     if (confirm ?? false) {
       setState(() => isLoading = true);
       try {
-        await FirebaseFirestore.instance
-            .collection('books')
-            .doc(widget.book.id)
-            .delete();
-
+        await FirebaseFirestore.instance.collection('books').doc(widget.book.id).delete();
         if (mounted) {
           showMessage("Book Deleted Successfully!");
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (mounted) Navigator.pop(context);
-          });
+          Navigator.pop(context);
         }
       } catch (e) {
         showMessage("Error: $e");
@@ -118,8 +105,7 @@ class _EditBookPageState extends State<EditBookPage> {
 
   void showMessage(String msg) {
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 
@@ -137,219 +123,123 @@ class _EditBookPageState extends State<EditBookPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF667eea),
-              const Color(0xFF764ba2),
-            ],
-          ),
+      backgroundColor: const Color(0xFFF3E8FF), // 💜 Light Purple Background
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: brandColor),
+          onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+            onPressed: isLoading ? null : deleteBook,
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              // Header Section
-              Container(
-                padding: const EdgeInsets.only(top: 40, bottom: 30),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(
-                        Icons.edit_document,
-                        size: 40,
-                        color: Colors.white,
-                      ),
+              // Header Icon
+              Column(
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: brandColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    const SizedBox(height: 15),
-                    const Text(
-                      "Edit Book",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Update book information",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
+                    child: Icon(Icons.edit_note_rounded, size: 40, color: brandColor),
+                  ),
+                  const SizedBox(height: 15),
+                  const Text(
+                    "Edit Book Details",
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
+                  ),
+                  const Text(
+                    "Keep your library information up to date",
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
               ),
 
-              // Form Section
+              const SizedBox(height: 30),
+
+              // Form Card
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(25),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFFAF5FF), // 💜 Card color
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.03),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
-                    ),
+                    )
                   ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title Field
-                    _buildLabel("Book Title *"),
-                    _buildTextField(
-                      controller: titleController,
-                      hintText: "Enter book title",
-                      icon: Icons.book,
-                    ),
+                    _buildLabel("BOOK TITLE *"),
+                    _buildTextField(titleController, "Book title", Icons.book),
+
                     const SizedBox(height: 20),
 
-                    // Author Field
-                    _buildLabel("Author *"),
-                    _buildTextField(
-                      controller: authorController,
-                      hintText: "Enter author name",
-                      icon: Icons.person,
-                    ),
+                    _buildLabel("AUTHOR *"),
+                    _buildTextField(authorController, "Author name", Icons.person),
+
                     const SizedBox(height: 20),
 
-                    // ISBN Field
                     _buildLabel("ISBN"),
-                    _buildTextField(
-                      controller: isbnController,
-                      hintText: "Enter ISBN (optional)",
-                      icon: Icons.code,
-                    ),
+                    _buildTextField(isbnController, "ISBN number", Icons.qr_code),
+
                     const SizedBox(height: 20),
 
-                    // Genre Field
-                    _buildLabel("Genre"),
-                    _buildTextField(
-                      controller: genreController,
-                      hintText: "Enter genre (optional)",
-                      icon: Icons.category,
-                    ),
+                    _buildLabel("GENRE"),
+                    _buildTextField(genreController, "e.g. History, Tech", Icons.category),
+
                     const SizedBox(height: 20),
 
-                    // Publication Date Field
-                    _buildLabel("Publication Date"),
-                    _buildTextField(
-                      controller: publicationDateController,
-                      hintText: "e.g., 2024-03-18 (optional)",
-                      icon: Icons.calendar_today,
-                    ),
+                    _buildLabel("PUBLICATION DATE"),
+                    _buildTextField(publicationDateController, "YYYY-MM-DD", Icons.calendar_today),
+
                     const SizedBox(height: 20),
 
-                    // Description Field
-                    _buildLabel("Description"),
-                    _buildTextAreaField(
-                      controller: descriptionController,
-                      hintText: "Enter book description (optional)",
-                    ),
+                    _buildLabel("DESCRIPTION"),
+                    _buildTextAreaField(descriptionController, "Book summary..."),
+
                     const SizedBox(height: 30),
 
-                    // Update Book Button
+                    // Update Button
                     SizedBox(
                       width: double.infinity,
-                      height: 55,
+                      height: 56,
                       child: ElevatedButton(
                         onPressed: isLoading ? null : editBook,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF667eea),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 5,
+                          backgroundColor: brandColor,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
                         ),
                         child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
+                            ? const CircularProgressIndicator(color: Colors.white)
                             : const Text(
-                                "Update Book",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                                "Update Details",
+                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
                               ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    // Delete Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : deleteBook,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red[400],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 5,
-                        ),
-                        child: const Text(
-                          "Delete Book",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    // Cancel Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[300],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 5,
-                        ),
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -358,59 +248,43 @@ class _EditBookPageState extends State<EditBookPage> {
   }
 
   Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF667eea),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
       ),
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData icon,
-  }) {
+  Widget _buildTextField(TextEditingController controller, String hint, IconData icon) {
     return TextField(
       controller: controller,
       enabled: !isLoading,
       decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: Icon(icon, color: const Color(0xFF667eea)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF667eea), width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey.shade400),
+        prefixIcon: Icon(icon, color: brandColor, size: 20),
+        filled: true,
+        fillColor: const Color(0xFFEDE9FE), // 💜 Light purple fields
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
       ),
     );
   }
 
-  Widget _buildTextAreaField({
-    required TextEditingController controller,
-    required String hintText,
-  }) {
+  Widget _buildTextAreaField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
       enabled: !isLoading,
       maxLines: 4,
       decoration: InputDecoration(
-        hintText: hintText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF667eea), width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey.shade400),
+        filled: true,
+        fillColor: const Color(0xFFEDE9FE),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        contentPadding: const EdgeInsets.all(16),
       ),
     );
   }
