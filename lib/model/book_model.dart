@@ -1,60 +1,76 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class BookModel {
-  final String? id;
+class Book {
+  final String id;
   final String title;
   final String author;
-  final String? isbn;
-  final String? genre;
-  final String? publicationDate;
-  final String? description;
-  final String userId;
-  final DateTime createdAt;
-  final bool isPublished;
+  final String isbn;
+  final int quantity;
+  final bool isIssued;
 
-  BookModel({
-    this.id,
+  Book({
+    required this.id,
     required this.title,
     required this.author,
-    this.isbn,
-    this.genre,
-    this.publicationDate,
-    this.description,
-    required this.userId,
-    required this.createdAt,
-    this.isPublished = false,
+    required this.isbn,
+    required this.quantity,
+    this.isIssued = false,
   });
 
-  // Convert BookModel to JSON for Firestore
-  Map<String, dynamic> toJson() {
+  Book copyWith({
+    String? id,
+    String? title,
+    String? author,
+    String? isbn,
+    int? quantity,
+    bool? isIssued,
+  }) {
+    return Book(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      author: author ?? this.author,
+      isbn: isbn ?? this.isbn,
+      quantity: quantity ?? this.quantity,
+      isIssued: isIssued ?? this.isIssued,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'title': title,
       'author': author,
       'isbn': isbn,
-      'genre': genre,
-      'publicationDate': publicationDate,
-      'description': description,
-      'userId': userId,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'isPublished': isPublished,
+      'quantity': quantity,
+      'isIssued': isIssued,
     };
   }
 
-  // Create BookModel from Firestore data
-  factory BookModel.fromJson(String id, Map<String, dynamic> json) {
-    return BookModel(
-      id: id,
-      title: json['title'] ?? '',
-      author: json['author'] ?? '',
-      isbn: json['isbn'],
-      genre: json['genre'],
-      publicationDate: json['publicationDate'],
-      description: json['description'],
-      userId: json['userId'] ?? '',
-      createdAt: json['createdAt'] != null
-          ? (json['createdAt'] as dynamic).toDate()
-          : DateTime.now(),
-      isPublished: json['isPublished'] ?? false,
+  factory Book.fromMap(Map<String, dynamic> map) {
+    return Book(
+      id: map['id']?.toString() ?? '',
+      title: map['title']?.toString() ?? '',
+      author: map['author']?.toString() ?? '',
+      isbn: map['isbn']?.toString() ?? '',
+      quantity: (map['quantity'] is int)
+          ? map['quantity'] as int
+          : int.tryParse(map['quantity']?.toString() ?? '0') ?? 0,
+      isIssued: map['isIssued'] == true,
+    );
+  }
+
+  String toJson() {
+    return '$id||$title||$author||$isbn||$quantity||$isIssued';
+  }
+
+  factory Book.fromJson(String json) {
+    final parts = json.split('||');
+
+    return Book(
+      id: parts.isNotEmpty ? parts[0] : '',
+      title: parts.length > 1 ? parts[1] : '',
+      author: parts.length > 2 ? parts[2] : '',
+      isbn: parts.length > 3 ? parts[3] : '',
+      quantity: parts.length > 4 ? int.tryParse(parts[4]) ?? 0 : 0,
+      isIssued: parts.length > 5 ? parts[5].toLowerCase() == 'true' : false,
     );
   }
 }
